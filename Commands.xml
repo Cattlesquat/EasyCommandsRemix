@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <commands>
-	<command ID="Easy_Throwables" DisplayText="Change Thrown Item" Category="Easy"/>
-	<command ID="Easy_Tonics" DisplayText="Apply Tonic / Medicine" Category="Easy"/>
+	<command ID="Easy_Recoilers" DisplayText="Recoil" Category="Easy Commands" Layer="Adventure" Auto="Down"/>
+	<command ID="Easy_Throwables" DisplayText="Change Thrown Item" Category="Easy Commands" Layer="Adventure" Auto="Down"/>
+	<command ID="Easy_Tonics" DisplayText="Apply Tonic / Medicine" Category="Easy Commands" Layer="Adventure" Auto="Down"/>
 </commands>
