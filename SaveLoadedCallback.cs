@@ -15,8 +15,6 @@ namespace EasyCommand
             // Called whenever loading a save game
             var player = XRLCore.Core?.Game?.Player?.Body;
             
-            UnityEngine.Debug.Log("Easy Commands - LOAD GAME CALLBACK!");
-            
             if (player != null && !player.HasPart(nameof(EasyCommand_Part)))
             {
                 player.AddPart<EasyCommand_Part>();
