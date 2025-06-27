@@ -1,7 +1,7 @@
 {
   "WorkshopId": 3508777995,
   "Title": "Easy Commands (Remix for 1.0+)",
-  "Description": "Tired of trawling through your inventory every time you need to unload at the Stilt, switch grenades, or pop a tonic? Easy Commands adds shortcut menus for recoiling, applying tonics, and changing your equipped grenade.\n\nTo use, visit Key Mappings after installing the mod and bind keys for the new options in the Easy section. Bad Mojo is partial to Shift+R, Shift+G, and Shift+T, but you do you.\n\n(For this mod I have repaired the breakages in Bad Mojo's original mod and made it work for Caves of Qud 1.0)\n\nhttps://github.com/Cattlesquat/EasyCommandsRemix.git",
+  "Description": "Tired of trawling through your inventory every time you switch grenades or pop a tonic? Easy Commands adds shortcut menus for applying tonics, and changing your equipped grenade.\n\nTo use, visit Key Mappings after installing the mod and bind keys for the new options in the Easy Commands section. Bad Mojo is partial to Shift+G, and Shift+T, but you do you.\n\nWorks with older saves.\n\n(For this mod I have repaired the breakages in Bad Mojo's original mod and made it work for Caves of Qud 1.0)\n\n1.1 - Removed the \"recoilers\" bind because the game now lets you bind a key directly to the existing Recoil ability from the Ability menu\n\nhttps://github.com/Cattlesquat/EasyCommandsRemix.git",
   "Tags": "Stable,Beta,UI,UX,Cosmetic,Ability",
   "Visibility": "2",
   "ImagePath": "preview.png"
