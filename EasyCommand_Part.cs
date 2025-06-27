@@ -33,6 +33,10 @@ namespace EasyCommand
             {
                 EasyClean(E.Actor);
             }
+            else if (E.Command == "Easy_Quench")
+            {
+                EasyQuench(E.Actor);
+            }
             return base.HandleEvent(E);
         }
 
@@ -158,6 +162,27 @@ namespace EasyCommand
 
             var container = waterContainers[0];
             InventoryActionEvent.Check(container, who, container, "CleanWithLiquid");
+        }
+
+        public void EasyQuench(GameObject who) {
+            if (!who.IsPlayer()) return;
+            var waterContainers = who.GetInventory().Where(x => (x.GetInventoryCategory() == "Water Containers")).Where(x => (x.LiquidVolume.IsFreshWater() && x.LiquidVolume.Volume > 0)).OrderBy(x => RankCleanContainer(x)).ToArray();
+            if (waterContainers.Length == 0) {
+                Popup.ShowFail("You have no fresh water available.");
+                return;
+            }
+        
+            var container = waterContainers[0];
+
+            // The below code is simplified a simplified version of what happens in LiquidVolume::Pour
+            int PourAmount = 1;
+            PlayWorldSound("Sounds/Interact/sfx_interact_liquidContainer_pourout");
+            Popup.Show(PourAmount.Things("dram") + " of " + container.LiquidVolume.GetLiquidName() + " pours out all over you!");
+            PourAmount -= container.LiquidVolume.ProcessContact(who, Initial: true, Poured: true, PouredBy: who, ContactVolume: PourAmount);
+            if (PourAmount <= 0) return;
+
+            bool RequestInterfaceExit = false;
+            container.LiquidVolume.PourIntoCell(who, who.GetCurrentCell(), PourAmount, ref RequestInterfaceExit, CanPourOn: true);
         }
 	}
 }
