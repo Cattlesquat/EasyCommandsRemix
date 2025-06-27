@@ -2,4 +2,6 @@
 <commands>
 	<command ID="Easy_Throwables" DisplayText="Change Thrown Item" Category="Easy Commands" Layer="Adventure" Auto="Down"/>
 	<command ID="Easy_Tonics" DisplayText="Apply Tonic / Medicine" Category="Easy Commands" Layer="Adventure" Auto="Down"/>
+	<command ID="Easy_Water" DisplayText="Use Water Containers" Category="Easy Commands" Layer="Adventure" Auto="Down"/>
+	<command ID="Easy_Clean" DisplayText="Clean All Items with 1 Dram Fresh Water" Category="Easy Commands" Layer="Adventure" Auto="Down"/>
 </commands>
