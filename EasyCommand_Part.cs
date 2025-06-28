@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using XRL;
 using XRL.UI;
 using XRL.World;
+using XRL.World.Anatomy;
 using XRL.World.Parts;
 using XRL.World.Parts.Skill;
 
@@ -37,12 +39,26 @@ namespace EasyCommand
             {
                 EasyQuench(E.Actor);
             }
+            else if (E.Command == "Easy_Tools")
+            {
+                EasyTools(E.Actor);
+            }
+            else if (E.Command == "Easy_Equipment")
+            {
+                EasyEquipment(E.Actor);
+            }
             return base.HandleEvent(E);
         }
 
 		public void EasyThrowables(GameObject who)
         {
 			if (!who.IsPlayer()) return;
+
+            if (who.IsConfused)
+            {
+                Popup.ShowFail("You get confused about what type of object you were trying to find.");
+                return;
+            }
 
    			var throwingSlot = who.Body.GetPart("Thrown Weapon").FirstOrDefault();
             if (throwingSlot == null) {
@@ -95,6 +111,11 @@ namespace EasyCommand
 		public void EasyTonics(GameObject who)
         {
 			if (!who.IsPlayer()) return;
+            if (who.IsConfused)
+            {
+                Popup.ShowFail("You get confused about what type of object you were trying to find.");
+                return;
+            }
 
 			var tonics = who.GetInventory().Where(x => IsMedication(x) || IsHealingFood(x)).OrderBy(x => RankMedicationAndFood(x)).ToArray();
 			if (tonics.Length == 0)
@@ -132,6 +153,11 @@ namespace EasyCommand
 
         public void EasyWater(GameObject who) {
             if (!who.IsPlayer()) return;
+            if (who.IsConfused)
+            {
+                Popup.ShowFail("You get confused about what type of object you were trying to find.");
+                return;
+            }
 
             var waterContainers = who.GetInventory().Where(x => (x.GetInventoryCategory() == "Water Containers")).OrderBy(x => RankWaterContainer(x)).ToArray();
             if (waterContainers.Length == 0) {
@@ -154,6 +180,11 @@ namespace EasyCommand
 
         public void EasyClean(GameObject who) {
             if (!who.IsPlayer()) return;
+            if (who.IsConfused)
+            {
+                Popup.ShowFail("You get confused about what you are trying to do.");
+                return;
+            }
             var waterContainers = who.GetInventory().Where(x => (x.GetInventoryCategory() == "Water Containers")).Where(x => (x.LiquidVolume.IsFreshWater() && x.LiquidVolume.Volume > 0)).OrderBy(x => RankCleanContainer(x)).ToArray();
             if (waterContainers.Length == 0) {
                 Popup.ShowFail("You have no fresh water available.");
@@ -166,6 +197,11 @@ namespace EasyCommand
 
         public void EasyQuench(GameObject who) {
             if (!who.IsPlayer()) return;
+            if (who.IsConfused)
+            {
+                Popup.ShowFail("You get confused about what you are trying to do.");
+                return;
+            }
             var waterContainers = who.GetInventory().Where(x => (x.GetInventoryCategory() == "Water Containers")).Where(x => (x.LiquidVolume.IsFreshWater() && x.LiquidVolume.Volume > 0)).OrderBy(x => RankCleanContainer(x)).ToArray();
             if (waterContainers.Length == 0) {
                 Popup.ShowFail("You have no fresh water available.");
@@ -183,6 +219,78 @@ namespace EasyCommand
 
             bool RequestInterfaceExit = false;
             container.LiquidVolume.PourIntoCell(who, who.GetCurrentCell(), PourAmount, ref RequestInterfaceExit, CanPourOn: true);
+        }
+
+
+		private static int RankTool(GameObject who, GameObject go)
+        {
+            if (go.TryGetPart<Examiner>(out var examiner) && !go.Understood(examiner)) return 0;
+            if (go.GetInventoryCategory() == "Artifacts") return 1;
+            if (go.GetInventoryCategory() == "Applicators") return 2;
+            return 3;
+        }
+            
+
+        public void EasyTools(GameObject who) {
+            if (!who.IsPlayer()) return;
+            if (who.IsConfused)
+            {
+                Popup.ShowFail("You get confused about what type of object you were trying to find.");
+                return;
+            }
+
+            var tools = who.GetInventory().Where(x => (x.GetInventoryCategory() == "Applicators") || (x.GetInventoryCategory() == "Artifacts") || (x.GetInventoryCategory() == "Tools")).OrderBy(x => RankTool(who, x)).ToArray();
+            if (tools.Length == 0) {
+                Popup.ShowFail("You have neither tools nor artifacts.");
+                return;
+            }
+
+            var tool = Popup.PickGameObject(Title: $"Artifacts, Applicators and Tools", tools, AllowEscape: true);
+            if (tool == null) return;
+
+            tool.Twiddle();
+        }
+
+
+		private static int RankEquipment(GameObject go)
+        {
+            if (go.GetInventoryCategory() == "Armor") return 0;
+            if (go.GetInventoryCategory() == "Melee Weapons") return 1;
+            return 2;
+        }
+
+
+        public void EasyEquipment(GameObject who) {
+            if (!who.IsPlayer()) return;
+            if (who.IsConfused)
+            {
+                Popup.ShowFail("You get confused about what type of object you were trying to find.");
+                return;
+            }
+
+            List<GameObject> equipment = new();
+            List<BodyPart> bodyParts = who.Body.GetParts();
+            bool needContext = false;
+            foreach (var bodyPart in bodyParts)
+            {
+                if (bodyPart.Equipped == null) continue;
+                var cat = bodyPart.Equipped.GetInventoryCategory();
+                if ((cat != "Armor") && (cat != "Melee Weapons") && (cat != "Missile Weapons")) continue;
+                equipment.Add(bodyPart.Equipped);
+                needContext = true;
+            }
+
+            equipment.AddRange(who.GetInventory().Where(x => (x.GetInventoryCategory() == "Armor") || (x.GetInventoryCategory() == "Melee Weapons") || (x.GetInventoryCategory() == "Missile Weapons")).OrderBy(x => RankEquipment(x)));
+
+            if (equipment.Count == 0) {
+                Popup.ShowFail("You have ... no equipment at all?");
+                return;
+            }
+
+            var item = Popup.PickGameObject(Title: $"Armor, Melee Weapons, and Missile Weapons", equipment, AllowEscape: true, ShowContext: needContext);
+            if (item == null) return;
+
+            item.Twiddle();
         }
 	}
 }
