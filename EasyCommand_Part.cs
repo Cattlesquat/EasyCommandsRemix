@@ -10,7 +10,7 @@ using XRL.World.Parts.Skill;
 
 namespace EasyCommand
 {
-    public class EasyCommand_Part : IPart
+    public class EasyCommand_Part : IPlayerPart
     {
         public override bool WantEvent(int ID, int cascade)
         {
@@ -117,6 +117,7 @@ namespace EasyCommand
                 return;
             }
 
+            again:
 			var tonics = who.GetInventory().Where(x => IsMedication(x) || IsHealingFood(x)).OrderBy(x => RankMedicationAndFood(x)).ToArray();
 			if (tonics.Length == 0)
 			{
@@ -127,15 +128,24 @@ namespace EasyCommand
             var tonic = Popup.PickGameObject(Title: $"Choose Meds or Tonics", tonics, AllowEscape: true);
             if (tonic == null) return;
 
-			if (IsMedication(tonic))
-			{
-				InventoryActionEvent.Check(tonic, who, tonic, tonic.HasPart<Food>() ? "Eat" : "Apply"); // Witchwood Bark is a "med" but you "eat" it.
-			}
-			else if (IsHealingFood(tonic))
-			{
-				InventoryActionEvent.Check(tonic, who, tonic, "Eat");
+            if (Options.GetOptionBool("OptionEasyCommandsInstantHeal"))
+            {
+                if (IsMedication(tonic))
+                {
+                    InventoryActionEvent.Check(tonic, who, tonic,
+                        tonic.HasPart<Food>() ? "Eat" : "Apply"); // Witchwood Bark is a "med" but you "eat" it.
+                }
+                else if (IsHealingFood(tonic))
+                {
+                    InventoryActionEvent.Check(tonic, who, tonic, "Eat");
+                }
             }
-		}
+            else
+            {
+                tonic.Twiddle();
+                if (Options.GetOptionBool("OptionEasyCommandsStayInMenu")) goto again;
+            }
+        }
 
 
 		private static int RankWaterContainer(GameObject go)
@@ -159,6 +169,7 @@ namespace EasyCommand
                 return;
             }
 
+            again:
             var waterContainers = who.GetInventory().Where(x => (x.GetInventoryCategory() == "Water Containers")).OrderBy(x => RankWaterContainer(x)).ToArray();
             if (waterContainers.Length == 0) {
                 Popup.ShowFail("You have no water containers.");
@@ -169,6 +180,7 @@ namespace EasyCommand
             if (container == null) return;
 
             container.Twiddle();
+            if (Options.GetOptionBool("OptionEasyCommandsStayInMenu")) goto again;
         }
 
 		private static int RankCleanContainer(GameObject go)
@@ -239,6 +251,7 @@ namespace EasyCommand
                 return;
             }
 
+            again:
             var tools = who.GetInventory().Where(x => (x.GetInventoryCategory() == "Applicators") || (x.GetInventoryCategory() == "Artifacts") || (x.GetInventoryCategory() == "Tools")).OrderBy(x => RankTool(who, x)).ToArray();
             if (tools.Length == 0) {
                 Popup.ShowFail("You have neither tools nor artifacts.");
@@ -249,6 +262,7 @@ namespace EasyCommand
             if (tool == null) return;
 
             tool.Twiddle();
+            if (Options.GetOptionBool("OptionEasyCommandsStayInMenu")) goto again;
         }
 
 
@@ -268,6 +282,7 @@ namespace EasyCommand
                 return;
             }
 
+            again:
             List<GameObject> equipment = new();
             List<BodyPart> bodyParts = who.Body.GetParts();
             bool needContext = false;
@@ -291,6 +306,7 @@ namespace EasyCommand
             if (item == null) return;
 
             item.Twiddle();
+            if (Options.GetOptionBool("OptionEasyCommandsStayInMenu")) goto again;
         }
 	}
 }

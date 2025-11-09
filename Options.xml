@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<options>
+	<option ID="OptionEasyCommandsInstantHeal" DisplayText="{{pearly|Easy Commands}} {{rainbow|Remix}}: Apply healing/tonics without going to submenu" Category="Mods" Type="Checkbox" Default="Yes" SearchKeywords="easy commands remix apply healing tonics submenu"/>
+	<option ID="OptionEasyCommandsStayInMenu" DisplayText="{{pearly|Easy Commands}} {{rainbow|Remix}}: Stay in easy commands menu after accessing an object's submenu" Category="Mods" Type="Checkbox" Default="Yes" SearchKeywords="easy commands remix stay in menu submenu"/>
+</options>
