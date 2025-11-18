@@ -7,9 +7,11 @@ using XRL.World;
 using XRL.World.Anatomy;
 using XRL.World.Parts;
 using XRL.World.Parts.Skill;
+using ConsoleLib.Console;
 
 namespace EasyCommand
 {
+    [XRL.UI.HasLookerHooks]
     public class EasyCommand_Part : IPlayerPart
     {
         public override bool WantEvent(int ID, int cascade)
@@ -46,6 +48,10 @@ namespace EasyCommand
             else if (E.Command == "Easy_Equipment")
             {
                 EasyEquipment(E.Actor);
+            }
+            else if (E.Command == "Easy_Look")
+            {
+                EasyLook(E.Actor);
             }
             return base.HandleEvent(E);
         }
@@ -307,6 +313,101 @@ namespace EasyCommand
 
             item.Twiddle();
             if (Options.GetOptionBool("OptionEasyCommandsStayInMenu")) goto again;
+        }
+        
+        static int LookIndex = 0;
+        static List<GameObject> ObjectList = new();
+
+        public static void UpdateObjectList()
+        {
+            Zone CurrentZone = XRL.The.Player.CurrentZone;
+
+            ObjectList.Clear();
+            for (int x = 0; x < CurrentZone.Width; x++)
+            {
+                for (int y = 0; y < CurrentZone.Height; y++)
+                {
+                    if (!CurrentZone.GetVisibility(x, y)) continue;
+                    Cell C = CurrentZone.GetCell(x, y);  
+                
+                    GameObject target = C.GetFirstObjectWithPart("SultanShrine", null, null);
+                    if (target == null)
+                    {
+                        target = C.GetFirstObjectWithPart("RandomStatue", null, null);
+                    }
+
+                    if (target != null)
+                    {
+                        ObjectList.Add(target);
+                    }
+                }
+            }
+            
+            if (ObjectList.Count > 0)
+            {
+                if (GameManager.Instance.CurrentGameView != "Looker")
+                {
+                    LookIndex = 0;
+                }
+                else
+                {
+                    LookIndex = (LookIndex + 1) % (ObjectList.Count + 1);
+                }
+            }
+            else
+            {
+                LookIndex = 0;
+            }
+        }
+
+        [XRL.UI.LookerMessage]
+        public static string LookerString()
+        {
+            return " | {{hotkey|" + ControlManager.getCommandInputFormatted("Easy_Look", false) + "}} points of interest";
+        }
+
+        [XRL.UI.LookerCommand]
+        public static void LookerCommand(Keys c, ref int X, ref int Y, ref bool bDone, ref bool bUpdateTooltip,
+            ref int pickObject, ref int TopLine)
+        {
+            XRL.Messages.MessageQueue.AddPlayerMessage("Key: " + c);
+            
+            if (c == Keys.L)
+            {
+                UpdateObjectList();
+                
+                if (LookIndex < ObjectList.Count)
+                {
+                    Cell C = ObjectList[LookIndex].CurrentCell;
+                    X = C.X;
+                    Y = C.Y;
+                    bUpdateTooltip = true;
+                }
+                else
+                {
+                    Cell ourCell = XRL.The.Player.CurrentCell;
+                    X = ourCell.X;
+                    Y = ourCell.Y;
+                    bUpdateTooltip = true;
+                }
+
+                XRL.Messages.MessageQueue.AddPlayerMessage("Index: " + LookIndex + " Count: " + ObjectList.Count + "   X: " + X + " Y: " + Y);
+            }
+        }
+    
+        public void EasyLook(GameObject who)
+        {
+            UpdateObjectList();
+            
+            if (LookIndex < ObjectList.Count) {
+                Cell C = ObjectList[LookIndex].CurrentCell;
+                XRL.UI.Look.ShowLooker(0, C.X, C.Y);
+            }
+            else
+            {
+                Cell ourCell = XRL.The.Player.CurrentCell;
+                XRL.UI.Look.ShowLooker(0, ourCell.X, ourCell.Y);
+            }
         }
 	}
 }

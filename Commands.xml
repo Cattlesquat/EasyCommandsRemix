@@ -7,4 +7,5 @@
 	<command ID="Easy_Quench" DisplayText="Pour 1 Dram of Water on Yourself" Category="Easy Commands" Layer="Adventure" Auto="Down"/>
 	<command ID="Easy_Tools" DisplayText="Artifacts, Applicators, and Tools" Category="Easy Commands" Layer="Adventure" Auto="Down"/>
 	<command ID="Easy_Equipment" DisplayText="Armor, Melee Weapons, Missile Weapons" Category="Easy Commands" Layer="Adventure" Auto="Down"/>
+	<command ID="Easy_Look" DisplayText="Look for Statues" Category="Adventuring" Layer="AdventureLooker" Auto="Down"/>
 </commands>
