@@ -315,11 +315,36 @@ namespace EasyCommand
             if (Options.GetOptionBool("OptionEasyCommandsStayInMenu")) goto again;
         }
         
-        static int LookIndex = 0;
-        static List<GameObject> ObjectList = new();
+        public static int LookIndex = 0;
+        public static int PointCount = 0;
+        public static List<PointOfInterest> PointsOfInterest = new();
 
-        public static void UpdateObjectList()
+        public static void UpdatePointsOfInterest()
         {
+            PointsOfInterest = GetPointsOfInterestEvent.GetFor(XRL.The.Player);
+            PointCount = PointsOfInterest?.Count ?? 0;
+            
+            //XRL.Messages.MessageQueue.AddPlayerMessage("Points of Interest: " + PointCount);
+            
+            if (PointCount > 0)
+            {
+                PointsOfInterest.Sort(PointOfInterest.Compare);
+
+                if (GameManager.Instance.CurrentGameView != "Looker")
+                {
+                    LookIndex = 0;
+                }
+                else
+                {
+                    LookIndex = (LookIndex + 1) % (PointsOfInterest.Count + 1);
+                }
+            }
+            else
+            {
+                LookIndex = 0;
+            }
+            
+            /*
             Zone CurrentZone = XRL.The.Player.CurrentZone;
 
             ObjectList.Clear();
@@ -358,6 +383,7 @@ namespace EasyCommand
             {
                 LookIndex = 0;
             }
+            */
         }
 
         [XRL.UI.LookerMessage]
@@ -370,17 +396,30 @@ namespace EasyCommand
         public static void LookerCommand(Keys c, ref int X, ref int Y, ref bool bDone, ref bool bUpdateTooltip,
             ref int pickObject, ref int TopLine)
         {
-            XRL.Messages.MessageQueue.AddPlayerMessage("Key: " + c);
-            
-            if (c == Keys.L)
+            if ( c == Keys.MouseEvent && Keyboard.CurrentMouseEvent.Event == "Command:Easy_Look" )
             {
-                UpdateObjectList();
+                UpdatePointsOfInterest();
                 
-                if (LookIndex < ObjectList.Count)
+              tryagain:
+                if (LookIndex < PointCount)
                 {
-                    Cell C = ObjectList[LookIndex].CurrentCell;
-                    X = C.X;
-                    Y = C.Y;
+                    GameObject go = PointsOfInterest[LookIndex].Object;
+                    if (go != null)
+                    {
+                        X = go.CurrentCell.X;
+                        Y = go.CurrentCell.Y;
+                    }
+                    else if (PointsOfInterest[LookIndex].Location != null)
+                    {
+                        X = PointsOfInterest[LookIndex].Location.X;
+                        Y = PointsOfInterest[LookIndex].Location.Y;
+                    }
+                    else
+                    {
+                        LookIndex++;
+                        goto tryagain;
+                    }
+                    
                     bUpdateTooltip = true;
                 }
                 else
@@ -390,18 +429,31 @@ namespace EasyCommand
                     Y = ourCell.Y;
                     bUpdateTooltip = true;
                 }
-
-                XRL.Messages.MessageQueue.AddPlayerMessage("Index: " + LookIndex + " Count: " + ObjectList.Count + "   X: " + X + " Y: " + Y);
             }
         }
     
         public void EasyLook(GameObject who)
         {
-            UpdateObjectList();
+            UpdatePointsOfInterest();
             
-            if (LookIndex < ObjectList.Count) {
-                Cell C = ObjectList[LookIndex].CurrentCell;
-                XRL.UI.Look.ShowLooker(0, C.X, C.Y);
+          tryagain:  
+            if (LookIndex < PointCount)
+            {
+                GameObject go = PointsOfInterest[LookIndex].Object;
+                if (go != null)
+                {
+                    XRL.UI.Look.ShowLooker(0, go.CurrentCell.X, go.CurrentCell.Y);
+                    //XRL.Messages.MessageQueue.AddPlayerMessage("  X: " + go.CurrentCell.X + "  Y: " + go.CurrentCell.Y);
+                }
+                else if (PointsOfInterest[LookIndex].Location != null)
+                {
+                    XRL.UI.Look.ShowLooker(0, PointsOfInterest[LookIndex].Location.X,
+                        PointsOfInterest[LookIndex].Location.Y);
+                }
+                else
+                {
+                    goto tryagain;
+                }
             }
             else
             {
