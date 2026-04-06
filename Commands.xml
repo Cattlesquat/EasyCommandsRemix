@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <commands>
 	<command ID="Easy_Throwables" DisplayText="Change Thrown Item" Category="Easy Commands" Layer="Adventure" Auto="Down"/>
+	<command ID="Easy_Throwables2" DisplayText="Access Throwable Item" Category="Easy Commands" Layer="Adventure" Auto="Down"/>
 	<command ID="Easy_Tonics" DisplayText="Apply Tonic / Medicine" Category="Easy Commands" Layer="Adventure" Auto="Down"/>
 	<command ID="Easy_Water" DisplayText="Use Water Containers" Category="Easy Commands" Layer="Adventure" Auto="Down"/>
 	<command ID="Easy_Clean" DisplayText="Clean All Items with 1 Dram Fresh Water" Category="Easy Commands" Layer="Adventure" Auto="Down"/>
 	<command ID="Easy_Quench" DisplayText="Pour 1 Dram of Water on Yourself" Category="Easy Commands" Layer="Adventure" Auto="Down"/>
 	<command ID="Easy_Tools" DisplayText="Artifacts, Applicators, and Tools" Category="Easy Commands" Layer="Adventure" Auto="Down"/>
 	<command ID="Easy_Equipment" DisplayText="Armor, Melee Weapons, Missile Weapons" Category="Easy Commands" Layer="Adventure" Auto="Down"/>
+	<command ID="Easy_Energy" DisplayText="Energy Cells" Category="Easy Commands" Layer="Adventure" Auto="Down"/>
+	<command ID="Easy_Data" DisplayText="Books, Data Disks, Miscellaneous" Category="Easy Commands" Layer="Adventure" Auto="Down"/>
 	<command ID="Easy_Look" DisplayText="Look for Points of Interest" Category="Easy Commands" Layer="AdventureLooker" Auto="Down"/>
 </commands>

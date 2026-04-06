@@ -24,6 +24,10 @@ namespace EasyCommand
             {
                 EasyThrowables(E.Actor);
             }
+            else if (E.Command == "Easy_Throwables2")
+            {
+                EasyThrowables2(E.Actor);
+            }
             else if (E.Command == "Easy_Tonics")
             {
                 EasyTonics(E.Actor);
@@ -47,6 +51,14 @@ namespace EasyCommand
             else if (E.Command == "Easy_Equipment")
             {
                 EasyEquipment(E.Actor);
+            }
+            else if (E.Command == "Easy_Energy")
+            {
+                EasyEnergy(E.Actor);
+            }
+            else if (E.Command == "Easy_Data")
+            {
+                EasyData(E.Actor);
             }
             else if (E.Command == "Easy_Look")
             {
@@ -89,6 +101,34 @@ namespace EasyCommand
             who.FireEvent(Event.New("CommandEquipObject", "Object", throwable, "BodyPart", throwingSlot)); // Use explicit equip to throwing slot, as many things appearing on the valid list won't default there. 
 		}
 
+        
+        public void EasyThrowables2(GameObject who)
+        {
+            if (!who.IsPlayer()) return;
+
+            if (who.IsConfused)
+            {
+                Popup.ShowFail("You get confused about what type of object you were trying to find.");
+                return;
+            }
+            
+            again:
+            var throwables = who.GetInventory().Where(x => x.IsThrownWeapon).OrderBy(x => RankThrowable(x)).ToArray();
+
+            if (throwables.Length == 0)
+            {
+                Popup.ShowFail("You have no throwable items!");
+                return;
+            }
+
+            var throwable = Popup.PickGameObject(Title: $"Equip which throwable item?", throwables, AllowEscape: true);
+            if (throwable == null) return;
+            
+            throwable.Twiddle();
+            if (Options.GetOptionBool("OptionEasyCommandsStayInMenu")) goto again;
+        }
+
+        
 		private static bool IsMedication(GameObject go)
         {
             return go.HasPart<Tonic>() || go.HasPart<Medication>() || go.HasPart<GeometricHealOnEat>(); 
@@ -270,6 +310,60 @@ namespace EasyCommand
             if (Options.GetOptionBool("OptionEasyCommandsStayInMenu")) goto again;
         }
 
+        
+        public void EasyEnergy(GameObject who) {
+            if (!who.IsPlayer()) return;
+            if (who.IsConfused)
+            {
+                Popup.ShowFail("You get confused about what type of object you were trying to find.");
+                return;
+            }
+
+            again:
+            var tools = who.GetInventory().Where(x => (x.GetInventoryCategory() == "Energy Cells")).OrderBy(x => RankTool(who, x)).ToArray();
+            if (tools.Length == 0) {
+                Popup.ShowFail("You have no energy cells.");
+                return;
+            }
+
+            var tool = Popup.PickGameObject(Title: $"Energy Cells", tools, AllowEscape: true);
+            if (tool == null) return;
+
+            tool.Twiddle();
+            if (Options.GetOptionBool("OptionEasyCommandsStayInMenu")) goto again;
+        }
+
+        
+        private static int RankData(GameObject who, GameObject go)
+        {
+            if (go.GetInventoryCategory() == "Data Disks") return 0;
+            if (go.GetInventoryCategory() == "Books") return 1;
+            if (go.GetInventoryCategory() == "Miscellaneous") return 2;
+            return 3;
+        }
+
+        public void EasyData(GameObject who) {
+            if (!who.IsPlayer()) return;
+            if (who.IsConfused)
+            {
+                Popup.ShowFail("You get confused about what type of object you were trying to find.");
+                return;
+            }
+
+            again:
+            var tools = who.GetInventory().Where(x => (x.GetInventoryCategory() == "Data Disks") || (x.GetInventoryCategory() == "Books") || (x.GetInventoryCategory() == "Miscellaneous")).OrderBy(x => RankData(who, x)).ToArray();
+            if (tools.Length == 0) {
+                Popup.ShowFail("You have no energy cells.");
+                return;
+            }
+
+            var tool = Popup.PickGameObject(Title: $"Energy Cells", tools, AllowEscape: true);
+            if (tool == null) return;
+
+            tool.Twiddle();
+            if (Options.GetOptionBool("OptionEasyCommandsStayInMenu")) goto again;
+        }
+        
 
 		private static int RankEquipment(GameObject go)
         {
@@ -313,6 +407,8 @@ namespace EasyCommand
             item.Twiddle();
             if (Options.GetOptionBool("OptionEasyCommandsStayInMenu")) goto again;
         }
+        
+        
         
         public static int LookIndex = 0;
         public static int PointCount = 0;
