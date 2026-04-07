@@ -11,52 +11,80 @@ using ConsoleLib.Console;
 
 namespace EasyCommand
 {
-    [XRL.UI.HasLookerHooks]
-    public partial class EasyCommand_Part : IPlayerPart
+    [XRL.UI.LookerUIPlugin]
+    public class EasyCommand_Looker : XRL.UI.Look.ILookerUIPlugin
     {
-        [XRL.UI.LookerMessage]
-        public static string LookerString()
+        public override string GetMessage(XRL.UI.Look.LookerState looker)
         {
             return " | {{hotkey|" + ControlManager.getCommandInputFormatted("Easy_Look", false) +
                    "}} points of interest";
         }
+        
+        public int PointCount = 0;
+        public List<PointOfInterest> PointsOfInterest = new();
 
-        [XRL.UI.LookerCommand]
-        public static void LookerCommand(Keys c, ref int X, ref int Y, ref bool bDone, ref bool bUpdateTooltip,
-            ref int pickObject, ref int TopLine)
+        public void UpdatePointsOfInterest()
+        {
+            PointsOfInterest = GetPointsOfInterestEvent.GetFor(XRL.The.Player);
+            PointCount = PointsOfInterest?.Count ?? 0;
+            
+            if (PointCount > 0)
+            {
+                PointsOfInterest.Sort(PointOfInterest.Compare);
+
+                if (GameManager.Instance.CurrentGameView != "Looker")
+                {
+                    EasyCommand.EasyCommand_Part.LookIndex = 0;
+                }
+                else
+                {
+                    EasyCommand.EasyCommand_Part.LookIndex = (EasyCommand.EasyCommand_Part.LookIndex + 1) % (PointsOfInterest.Count + 1);
+                }
+            }
+            else
+            {
+                EasyCommand.EasyCommand_Part.LookIndex = 0;
+            }
+        }
+
+        
+        public override void HandleKey(ref XRL.UI.Look.LookerState looker, Keys c)
         {
             if (c == Keys.MouseEvent && Keyboard.CurrentMouseEvent.Event == "Command:Easy_Look")
             {
                 UpdatePointsOfInterest();
-
+                
                 tryagain:
-                if (LookIndex < PointCount)
+                if (EasyCommand.EasyCommand_Part.LookIndex < PointCount)
                 {
-                    GameObject go = PointsOfInterest[LookIndex].Object;
+                    GameObject go = PointsOfInterest[EasyCommand.EasyCommand_Part.LookIndex].Object;
                     if (go != null)
                     {
-                        X = go.CurrentCell.X;
-                        Y = go.CurrentCell.Y;
+                        //XRL.Messages.MessageQueue.AddPlayerMessage(PointsOfInterest[EasyCommand.EasyCommand_Part.LookIndex].DisplayName + " (" + EasyCommand.EasyCommand_Part.LookIndex + ")");
+                        looker.xp = go.CurrentCell.X;
+                        looker.yp = go.CurrentCell.Y;
                     }
-                    else if (PointsOfInterest[LookIndex].Location != null)
+                    else if (PointsOfInterest[EasyCommand.EasyCommand_Part.LookIndex].Location != null)
                     {
-                        X = PointsOfInterest[LookIndex].Location.X;
-                        Y = PointsOfInterest[LookIndex].Location.Y;
+                        //XRL.Messages.MessageQueue.AddPlayerMessage(PointsOfInterest[EasyCommand.EasyCommand_Part.LookIndex].DisplayName + " (" + EasyCommand.EasyCommand_Part.LookIndex + ")");
+
+                        looker.xp = PointsOfInterest[EasyCommand.EasyCommand_Part.LookIndex].Location.X;
+                        looker.yp = PointsOfInterest[EasyCommand.EasyCommand_Part.LookIndex].Location.Y;
                     }
                     else
                     {
-                        LookIndex++;
+                        EasyCommand.EasyCommand_Part.LookIndex++;
                         goto tryagain;
                     }
 
-                    bUpdateTooltip = true;
+                    looker.bUpdateTooltip = true;
                 }
                 else
                 {
                     Cell ourCell = XRL.The.Player.CurrentCell;
-                    X = ourCell.X;
-                    Y = ourCell.Y;
-                    bUpdateTooltip = true;
+                    looker.xp = ourCell.X;
+                    looker.yp = ourCell.Y;
+                    looker.bUpdateTooltip = true;
                 }
             }
         }

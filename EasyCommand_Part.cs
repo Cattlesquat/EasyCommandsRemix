@@ -419,8 +419,6 @@ namespace EasyCommand
             PointsOfInterest = GetPointsOfInterestEvent.GetFor(XRL.The.Player);
             PointCount = PointsOfInterest?.Count ?? 0;
             
-            //XRL.Messages.MessageQueue.AddPlayerMessage("Points of Interest: " + PointCount);
-            
             if (PointCount > 0)
             {
                 PointsOfInterest.Sort(PointOfInterest.Compare);
