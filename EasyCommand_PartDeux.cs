@@ -12,7 +12,7 @@ using ConsoleLib.Console;
 namespace EasyCommand
 {
     [XRL.UI.LookerUIPlugin]
-    public class EasyCommand_Looker : XRL.UI.Look.ILookerUIPlugin
+    public class EasyCommand_Looker : XRL.UI.ILookerUIPlugin
     {
         public override string GetMessage(XRL.UI.Look.LookerState looker)
         {
@@ -48,7 +48,7 @@ namespace EasyCommand
         }
 
         
-        public override void HandleKey(ref XRL.UI.Look.LookerState looker, Keys c)
+        public override bool HandleKey(XRL.UI.Look.LookerState looker, Keys c)
         {
             if (c == Keys.MouseEvent && Keyboard.CurrentMouseEvent.Event == "Command:Easy_Look")
             {
@@ -87,6 +87,8 @@ namespace EasyCommand
                     looker.bUpdateTooltip = true;
                 }
             }
+
+            return true;
         }
     }
 }
