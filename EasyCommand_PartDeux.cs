@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Linq;
 using XRL;
 using XRL.UI;
@@ -7,6 +8,7 @@ using XRL.World;
 using XRL.World.Anatomy;
 using XRL.World.Parts;
 using XRL.World.Parts.Skill;
+using XRL.World.Text;
 using ConsoleLib.Console;
 
 namespace EasyCommand
@@ -14,10 +16,9 @@ namespace EasyCommand
     [XRL.UI.LookerUIPlugin]
     public class EasyCommand_Looker : XRL.UI.ILookerUIPlugin
     {
-        public override string GetMessage(XRL.UI.Look.LookerState looker)
+        public override void BuildMessage(XRL.UI.Look.LookerState looker, TextBuilder Message)
         {
-            return " | {{hotkey|" + ControlManager.getCommandInputFormatted("Easy_Look", false) +
-                   "}} points of interest";
+            Message.Append(" | {{hotkey|" + ControlManager.getCommandInputFormatted("Easy_Look", false) + "}} points of interest");
         }
         
         public int PointCount = 0;
@@ -48,7 +49,7 @@ namespace EasyCommand
         }
 
         
-        public override bool HandleKey(XRL.UI.Look.LookerState looker, Keys c)
+        public override bool HandleKey(XRL.UI.Look.LookerState looker, ref Keys c)
         {
             if (c == Keys.MouseEvent && Keyboard.CurrentMouseEvent.Event == "Command:Easy_Look")
             {
@@ -77,14 +78,14 @@ namespace EasyCommand
                         goto tryagain;
                     }
 
-                    looker.bUpdateTooltip = true;
+                    looker.UpdateTooltip = true;
                 }
                 else
                 {
                     Cell ourCell = XRL.The.Player.CurrentCell;
                     looker.xp = ourCell.X;
                     looker.yp = ourCell.Y;
-                    looker.bUpdateTooltip = true;
+                    looker.UpdateTooltip = true;
                 }
             }
 
